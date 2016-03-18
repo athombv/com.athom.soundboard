@@ -5,6 +5,7 @@ var path		= require('path');
 var crypto		= require('crypto');
 
 var SETTING_PREFIX = 'sound_';
+var registered_sounds = [];
 
 function init() {
 
@@ -31,14 +32,21 @@ function playSound( sound_id, callback ) {
 	var soundObj = getSound( sound_id, true );
 	if( soundObj instanceof Error ) return callback( soundObj );
 
+	// don't upload sample if already uploaded
+	if( registered_sounds.indexOf(sound_id) > -1 ) {
+		soundObj.path = null;
+	}
+
 	if( soundObj.type == 'audio/wav' ) {
 		Homey.manager('speaker').playWav( soundObj.id, soundObj.path, function(err){
 			if( err ) return callback(err);
+			registered_sounds.push( soundObj.id );
 			return callback( null, true );
 		});
 	} else if( soundObj.type == 'audio/mp3' ) {
 		Homey.manager('speaker').playMp3( soundObj.id, soundObj.path, function(err){
 			if( err ) return callback(err);
+			registered_sounds.push( soundObj.id );
 			return callback( null, true );
 		});
 	} else {
