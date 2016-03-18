@@ -3,11 +3,19 @@
     "name": {
         "en": "Soundboard"
     },
+    "description": {
+	    "en": "Play your own sounds in Homey"
+    },
     "version": "0.0.1",
-    "compatibility": "0.x || >=0.8.25",
+    "compatibility": "< 0.0.1 || >=0.8.25",
+    "category": [ "music" ],
     "author": {
-        "name": "Emile Nijssen",
-        "email": "emile@athom.nl"
+        "name": "Athom B.V.",
+        "email": "info@athom.nl"
+    },
+    "images": {
+	    "large": "./assets/images/large.png",
+	    "small": "./assets/images/small.png"
     },
     "flow": {
 	    "actions": [
