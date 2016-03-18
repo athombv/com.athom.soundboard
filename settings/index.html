@@ -1,0 +1,230 @@
+<!doctype html>
+<html>
+	<head>
+
+		<script type="text/javascript" src="/manager/webserver/assets/js/angular.js"></script>
+		<script type="text/javascript" src="/manager/webserver/assets/font/fontawesome/fontawesome.css"></script>
+
+		<style type="text/css">
+		input {
+			border-radius: 3px;
+		}
+		#sounds {
+			list-style: none;
+		}
+		.sound {
+			position: relative;
+			border-bottom: 1px solid #eee;
+			height: 60px;
+		}
+		.sound:last-child {
+			border-bottom: none;
+		}
+			.sound .name {
+				overflow: hidden;
+				text-overflow: ellipsis;
+				white-space: nowrap;
+			}
+			.sound .play {
+				position: absolute;
+				left: 10px;
+				top: 10px;
+				bottom: 10px;
+				width: 40px;
+				height: 40px;
+				font-size: 40px;
+			}
+			.sound .play:hover {
+				cursor: pointer;
+				color: #333;
+			}
+			.sound .play,
+			.sound .play:active {
+				color: black;
+			}
+			.sound .name {
+				position: absolute;
+				left: 70px;
+				top: 10px;
+				bottom: 10px;
+				font-size: 14px;
+				line-height: 40px;
+				font-weight: 400;
+			}
+			.sound input.name {
+				top: 15px;
+				bottom: 15px;
+				line-height: 20px;
+			}
+			.sound .buttons {
+				position: absolute;
+				right: 10px;
+				top: 16px;
+				font-size: 0;
+			}
+				.sound button {
+					float: left;
+					box-sizing: border-box;
+					padding: 5px 10px;
+					margin-left: 5px;
+					opacity: 0;
+					visibility: hidden;
+				}
+				.sound:hover button {
+					opacity: 1;
+					visibility: visible;
+				}
+		</style>
+
+	</head>
+	<body ng-app="soundboard" ng-controller="soundboardCtrl as soundboard">
+
+		<h2 data-i18n="settings.title_sounds"></h2>
+
+		<p ng-show="sounds.length < 1">
+			<span data-i18n="settings.no_sounds"></span>
+		</p>
+
+		<ul id="sounds">
+			<li
+				class="sound"
+				ng-repeat="sound in sounds"
+			>
+				<i class="play fa fa-play-circle" ng-click="playSound(sound)"></i>
+
+				<div ng-show="!sound.updating" class="name" ng-dblclick="sound.updating = true;">{{sound.name}}</div>
+				<input ng-show="sound.updating" class="name" type="text" ng-model="sound.name" ng-enter="updateSound(sound)" />
+
+				<div class="buttons">
+					<button class="remove" ng-click="deleteSound(sound)"><i class="fa fa-trash-o"></i> {{__('settings.delete')}}</button>
+				</div>
+
+			</li>
+		</ul>
+
+		<h2 data-i18n="settings.title_upload">Upload a sound</h2>
+		<input type="file" id="files" name="files[]" multiple />
+
+		<script type="text/javascript">
+		angular.module('soundboard', [])
+			.controller("soundboardCtrl", [ '$scope', '$rootScope', '$timeout', function($scope, $rootScope, $timeout) {
+
+				$scope.sounds = [];
+
+				$scope.$on('ready', function(){
+					$scope.__ = window.__;
+					updateSounds();
+				});
+
+				$scope.playSound = function( sound ) {
+
+					if( sound.playing ) return;
+					sound.playing = true;
+
+					Homey.api('POST', '/' + sound.id + '/play', {}, function(err, result){
+						$scope.$apply(function(){
+							sound.playing = false;
+						});
+						if( err) return Homey.alert( err.message || err.toString(), 'error' );
+					})
+				}
+
+				$scope.updateSound = function( sound ) {
+
+					sound.updating = false;
+
+					Homey.api('PUT', '/' + sound.id, {
+						name: sound.name
+					}, function(err, result){
+						if( err) return Homey.alert( err.message || err.toString(), 'error' );
+					})
+				}
+
+				$scope.deleteSound = function( sound ){
+					Homey.confirm( __('settings.confirm_delete'), 'warning', function( err, yes ){
+						if( !yes ) return;
+						Homey.api('DELETE', '/' + sound.id, function(err, result){
+							if( err) return Homey.alert( err.message || err.toString(), 'error' );
+							updateSounds();
+						})
+					})
+				}
+
+			}])
+			.directive('ngEnter', function() {
+				return function(scope, element, attrs) {
+					element.bind('keydown keypress', function(event) {
+						if (event.which === 13) {
+							scope.$apply(function() {
+								scope.$eval(attrs.ngEnter || attrs.ngClick, {
+									$event: event
+								});
+							});
+							event.preventDefault();
+						}
+					});
+				};
+			});
+
+
+		function onHomeyReady(){
+			var scope = angular.element( document.body ).scope();
+				scope.$emit('ready');
+
+			Homey.ready();
+
+			if (window.File && window.FileReader && window.FileList && window.Blob) {
+				document.getElementById('files').addEventListener('change', handleFileSelect, false);
+			} else {
+				Homey.alert( __('settings.file_api_err'), 'error');
+			}
+		}
+
+		function updateSounds() {
+			Homey.api('GET', '/', function( err, result ){
+				var scope = angular.element( document.body ).scope();
+				scope.sounds = result;
+				scope.$apply();
+			});
+		}
+
+		function handleFileSelect(evt) {
+			var files = evt.target.files;
+
+			for (var i = 0, file; file = files[i]; i++) {
+
+				if( file.type == 'audio/mp3' || file.type == 'audio/wav' ) {
+
+					if( file.size > 900000 ) {
+						Homey.alert( __('settings.too_large'), 'error' )
+					} else {
+						var reader = new FileReader();
+							reader.onload = (function(theFile) {
+								return function(e) {
+
+									var buffer = e.target.result.substr(e.target.result.indexOf(',')+1)
+
+									Homey.api('POST', '/', {
+										type	: theFile.type,
+										name	: theFile.name,
+										buffer	: buffer
+									}, function( err, result ){
+										if( err) return Homey.alert( err.message || err.toString(), 'error' );
+										updateSounds();
+									})
+
+								};
+							})(file);
+							reader.readAsDataURL(file);
+					}
+				} else {
+					Homey.alert( __('settings.invalid_type'), 'error');
+				}
+
+			};
+
+		}
+		</script>
+
+	</body>
+</html>

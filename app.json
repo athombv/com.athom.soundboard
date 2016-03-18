@@ -1,0 +1,29 @@
+{
+    "id": "com.athom.soundboard",
+    "name": {
+        "en": "Soundboard"
+    },
+    "version": "0.0.1",
+    "compatibility": "0.x || >=0.8.25",
+    "author": {
+        "name": "Emile Nijssen",
+        "email": "emile@athom.nl"
+    },
+    "flow": {
+	    "actions": [
+		    {
+			    "id": "play",
+			    "title": {
+				    "en": "Play a sound",
+				    "nl": "Speel een geluid af"
+			    },
+			    "args": [
+				    {
+					    "name": "sound",
+					    "type": "autocomplete"
+				    }
+			    ]
+		    }
+	    ]
+    }
+}
