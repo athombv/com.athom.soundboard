@@ -19,7 +19,7 @@ function init() {
 
 		var sounds = getSounds();
 			sounds = sounds.filter(function(sound){
-				return sound.name.toLowerCase().indexOf( args.query ) > -1;
+				return sound.name.toLowerCase().indexOf( args.query.toLowerCase() ) > -1;
 			})
 
 		callback( null, sounds );
