@@ -6,8 +6,8 @@
     "description": {
 	    "en": "Play your own sounds in Homey"
     },
-    "version": "0.0.1",
-    "compatibility": "< 0.0.1 || >=0.8.25",
+    "version": "1.0.0",
+    "compatibility": ">=0.8.25",
     "category": [ "music" ],
     "author": {
         "name": "Athom B.V.",
