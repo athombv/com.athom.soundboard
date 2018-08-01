@@ -1,56 +1,62 @@
 "use strict";
 
-module.exports = [
+const Homey = require('homey');
 
+module.exports = [
 
 	{
 		method		: 'POST',
 		path		: '/:id/play',
-		fn			: function( callback, args ) {
-			Homey.app.playSound( args.params.id, callback );
-		}
+		fn: async ({ params: { id }}) => {
+			return Homey.app.playSound({ id });
+		},
 	},
 
 	{
-		method		: 'GET',
-		path		: '/',
-		fn			: function( callback, args ) {
-			var sounds = Homey.app.getSounds();
-			callback( null, sounds );
-		}
+		method: 'GET',
+		path: '/',
+		fn: async ({}) => {
+			return Homey.app.getSounds();
+		},
 	},
-
 
 	{
-		method		: 'POST',
-		path		: '/',
-		fn			: function( callback, args ) {
-			var result = Homey.app.addSound( args.body );
-			if( result instanceof Error ) return callback( result );
-			callback( null, result );
-		}
+		method: 'GET',
+		path: '/',
+		fn: async ({ params: { id } }) => {
+			return Homey.app.getSound({ id });
+		},
 	},
 
+	{
+		method: 'POST',
+		path: '/',
+		fn: async ({ body: { type, name, buffer } }) => {
+			return Homey.app.createSound({
+				type,
+				name,
+				buffer,
+			});
+		},
+	},
 
 	{
 		method		: 'PUT',
 		path		: '/:id',
-		fn			: function( callback, args ) {
-			var result = Homey.app.updateSound( args.params.id, args.body );
-			if( result instanceof Error ) return callback( result );
-			callback( null, result );
-		}
+		fn: async ({ params: { id }, body: {  name } }) => {
+			return Homey.app.updateSound({
+				id,
+				name,
+			});
+		},
 	},
-
 
 	{
 		method		: 'DELETE',
 		path		: '/:id',
-		fn			: function( callback, args ) {
-			var result = Homey.app.deleteSound( args.params.id );
-			if( result instanceof Error ) return callback( result );
-			callback( null, result );
-		}
+		fn: async ({ params: { id } }) => {
+			return Homey.app.deleteSound({ id });
+		},
 	}
 
 ]

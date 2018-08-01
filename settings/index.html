@@ -2,6 +2,7 @@
 <html>
 	<head>
 
+		<script type="text/javascript" src="/homey.js" data-origin="settings"></script>
 		<script type="text/javascript" src="/manager/webserver/assets/js/angular.js"></script>
 		<script type="text/javascript" src="/manager/webserver/assets/font/fontawesome/fontawesome.css"></script>
 
@@ -105,16 +106,36 @@
 		<h2 data-i18n="settings.title_upload">Upload a sound</h2>
 		<input type="file" id="files" name="files[]" multiple />
 
-		<script type="text/javascript">
+		<script type="text/javascript">	
 		angular.module('soundboard', [])
 			.controller("soundboardCtrl", [ '$scope', '$rootScope', '$timeout', function($scope, $rootScope, $timeout) {
+				
+				var Homey;
 
 				$scope.sounds = [];
 
-				$scope.$on('ready', function(){
-					$scope.__ = window.__;
-					updateSounds();
+				$scope.$on('ready', function($e, Homey_) {
+					Homey = Homey_;
+					$scope.__ = Homey.__;
+					
+					if (window.File && window.FileReader && window.FileList && window.Blob) {
+						document.getElementById('files').addEventListener('change', $scope.onFileSelect, false);
+					} else {
+						Homey.alert( Homey.__('settings.file_api_err'), 'error');
+					}
+					
+					$scope.getSounds();
+					Homey.ready();	
 				});
+				
+				$scope.getSounds = function() {
+					Homey.api('GET', '/', function( err, result ){
+						if( err ) return Homey.alert( err, 'error' );
+						$scope.$apply(function(){
+							$scope.sounds = result;
+						});
+					});
+				}
 
 				$scope.playSound = function( sound ) {
 
@@ -141,13 +162,46 @@
 				}
 
 				$scope.deleteSound = function( sound ){
-					Homey.confirm( __('settings.confirm_delete'), 'warning', function( err, yes ){
+					Homey.confirm( Homey.__('settings.confirm_delete'), 'warning', function( err, yes ){
 						if( !yes ) return;
 						Homey.api('DELETE', '/' + sound.id, function(err, result){
 							if( err) return Homey.alert( err.message || err.toString(), 'error' );
-							updateSounds();
+							$scope.getSounds();
 						})
 					})
+				}
+				
+				$scope.onFileSelect = function(evt) {
+					var files = evt.target.files;
+					for (var i = 0, file; file = files[i]; i++) {
+						if( file.type == 'audio/mp3' || file.type == 'audio/wav' ) {
+							if( file.size > 900000 ) {
+								Homey.alert( Homey.__('settings.too_large'), 'error' )
+							} else {
+								var reader = new FileReader();
+									reader.onload = (function(theFile) {
+										return function(e) {
+		
+											var buffer = e.target.result.substr(e.target.result.indexOf(',')+1)
+		
+											Homey.api('POST', '/', {
+												type	: theFile.type,
+												name	: theFile.name,
+												buffer	: buffer
+											}, function( err, result ){
+												if( err) return Homey.alert( err.message || err.toString(), 'error' );
+												$scope.getSounds();
+											})
+		
+										};
+									})(file);
+									reader.readAsDataURL(file);
+							}
+						} else {
+							Homey.alert( Homey.__('settings.invalid_type'), 'error');
+						}
+		
+					};
 				}
 
 			}])
@@ -165,64 +219,10 @@
 					});
 				};
 			});
-
-
-		function onHomeyReady(){
+				
+		function onHomeyReady(Homey){
 			var scope = angular.element( document.body ).scope();
-				scope.$emit('ready');
-
-			Homey.ready();
-
-			if (window.File && window.FileReader && window.FileList && window.Blob) {
-				document.getElementById('files').addEventListener('change', handleFileSelect, false);
-			} else {
-				Homey.alert( __('settings.file_api_err'), 'error');
-			}
-		}
-
-		function updateSounds() {
-			Homey.api('GET', '/', function( err, result ){
-				var scope = angular.element( document.body ).scope();
-				scope.sounds = result;
-				scope.$apply();
-			});
-		}
-
-		function handleFileSelect(evt) {
-			var files = evt.target.files;
-
-			for (var i = 0, file; file = files[i]; i++) {
-
-				if( file.type == 'audio/mp3' || file.type == 'audio/wav' ) {
-
-					if( file.size > 900000 ) {
-						Homey.alert( __('settings.too_large'), 'error' )
-					} else {
-						var reader = new FileReader();
-							reader.onload = (function(theFile) {
-								return function(e) {
-
-									var buffer = e.target.result.substr(e.target.result.indexOf(',')+1)
-
-									Homey.api('POST', '/', {
-										type	: theFile.type,
-										name	: theFile.name,
-										buffer	: buffer
-									}, function( err, result ){
-										if( err) return Homey.alert( err.message || err.toString(), 'error' );
-										updateSounds();
-									})
-
-								};
-							})(file);
-							reader.readAsDataURL(file);
-					}
-				} else {
-					Homey.alert( __('settings.invalid_type'), 'error');
-				}
-
-			};
-
+				scope.$emit('ready', Homey);
 		}
 		</script>
 

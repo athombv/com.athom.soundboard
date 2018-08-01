@@ -1,151 +1,119 @@
-"use strict";
+'use strict';
 
-var fs			= require('fs');
-var path		= require('path');
-var crypto		= require('crypto');
+const { join } = require('path');
+const { readFile, writeFile, unlink } = require('fs');
+const { randomBytes } = require('crypto');
+const { promisify } = require('util');
+const Homey = require('homey');
 
 var SETTING_PREFIX = 'sound_';
-var registered_sounds = [];
 
-function init() {
+const readFileAsync = promisify(readFile);
+const writeFileAsync = promisify(writeFile);
+const unlinkAsync = promisify(unlink);
 
-	Homey.log("com.athom.soundboard running");
-
-	Homey.manager('flow').on('action.play', function( callback, args ){
-		playSound( args.sound.id, callback );
-	});
-
-	Homey.manager('flow').on('action.play.sound.autocomplete', function( callback, args ){
-
-		var sounds = getSounds();
-			sounds = sounds.filter(function(sound){
-				return sound.name.toLowerCase().indexOf( args.query.toLowerCase() ) > -1;
+class SoundboardApp extends Homey.App {
+	
+	onInit() {
+		this.log('SoundboardApp running...');
+		
+		new Homey.FlowCardAction('play')
+			.register()
+			.registerRunListener(async args => {
+				
 			})
-
-		callback( null, sounds );
-	})
-
-}
-
-function playSound( sound_id, callback ) {
-
-	var soundObj = getSound( sound_id, true );
-	if( soundObj instanceof Error ) return callback( soundObj );
-
-	// don't upload sample if already uploaded
-	if( registered_sounds.indexOf(sound_id) > -1 ) {
-		soundObj.path = null;
+			.getArgument('sound')
+			.registerAutocompleteListener(async query => {
+				return this.getSounds()
+					.map(sound => {
+						console.log('sound', sound)
+						return {
+							id: sound.id,
+							title: sound.name,
+						}
+					})
+					.filter(sound => {
+						return sound.name.toLowerCase().indexOf( args.query.toLowerCase() ) > -1;						
+					})
+			});
+		
 	}
-
-	if( soundObj.type == 'audio/wav' ) {
-		Homey.manager('speaker').playWav( soundObj.id, soundObj.path, function(err){
-			if( err ) return callback(err);
-			registered_sounds.push( soundObj.id );
-			return callback( null, true );
+	
+	async playSound({ id }) {
+		const { type, path } = await this.getSound({ id });
+		const filepath = join(__dirname, path);
+		
+		if( type === 'audio/mp3' )
+			return Homey.ManagerAudio.playMp3(id, filepath);
+			
+		if( type === 'audio/wav' )
+			return Homey.ManagerAudio.playWav(id, filepath);
+		
+		throw new Error('unsupported_type');
+	}
+	
+	getSounds() {
+		return Homey.ManagerSettings.getKeys()
+			.filter(key => {
+				return key.indexOf(SETTING_PREFIX) === 0;
+			})
+			.map(key => {
+				return this.getSound({
+					id: key.substring(SETTING_PREFIX.length),
+				});			
+			});
+	}
+	
+	getSound({ id }) {
+		const sound = Homey.ManagerSettings.get(`${SETTING_PREFIX}${id}`);
+		if( !sound ) throw new Error('invalid_sound');
+		return sound;
+	}
+	
+	async createSound({ type, name, buffer }) {
+		if( !['audio/wav', 'audio/mp3'].includes(type) )
+			throw new Error('invalid_type');
+			
+		const buf = new Buffer(buffer, 'base64');
+		if( !Buffer.isBuffer(buf) )
+			throw new Error("invalid_buffer");
+			
+		const id = randomBytes(12).toString('hex');
+		const path = `./userdata/${id}`;
+		await writeFileAsync(path, buf);
+		
+		Homey.ManagerSettings.set(`${SETTING_PREFIX}${id}`, {
+			id,
+			type,
+			name,
+			path,
 		});
-	} else if( soundObj.type == 'audio/mp3' ) {
-		Homey.manager('speaker').playMp3( soundObj.id, soundObj.path, function(err){
-			if( err ) return callback(err);
-			registered_sounds.push( soundObj.id );
-			return callback( null, true );
-		});
-	} else {
-		return callback( new Error("invalid_sound_type") );
+		return this.getSound({ id });
 	}
-
-}
-
-function getSounds() {
-	var result = [];
-
-	Homey.manager('settings')
-		.getKeys()
-		.forEach(function(setting){
-
-			// skip other settings
-			if( setting.substring(0, SETTING_PREFIX.length) != SETTING_PREFIX ) return;
-
-			var sound_id = setting.substring(SETTING_PREFIX.length);
-			result.push( getSound( sound_id ) );
-		})
-
-	return result;
-}
-
-function getSound( sound_id ) {
-
-	var sound = Homey.manager('settings').get( SETTING_PREFIX + sound_id );
-	if( typeof sound == 'undefined' ) return new Error("invalid_sound_id");
-
-	var returnObj = {
-		id		: sound.id,
-		name	: sound.name,
-		type	: sound.type,
-		path	: sound.path
+	
+	async updateSound({ id, name }) {
+		const sound = await this.getSound({ id });
+		
+		if( typeof name === 'string' )
+			sound.name = name;
+		
+		Homey.ManagerSettings.set(`${SETTING_PREFIX}${id}`, sound);
+		
+		return this.getSound({ id });
+		
 	}
-
-	return returnObj;
-}
-
-function addSound( sound ) {
-
-	if( typeof sound.buffer == 'string' ) sound.buffer = new Buffer(sound.buffer, 'base64');
-	if( !Buffer.isBuffer(sound.buffer) ) return new Error("invalid_sound.buffer");
-
-	var id = crypto.randomBytes(12).toString('hex');
-
-	var soundObj = {
-		id		: id,
-		name	: sound.name || 'New Sound',
-		type	: sound.type,
-		path	: path.join( Homey.paths.userdata, id )
+	
+	async deleteSound({ id }) {
+		const sound = await this.getSound({ id });
+		try {
+			await unlinkAsync(sound.path);
+		} catch( err ) {
+			this.error(err);
+		}
+		Homey.ManagerSettings.unset(`${SETTING_PREFIX}${id}`);
+		
 	}
-
-	try {
-		fs.writeFileSync( soundObj.path, sound.buffer );
-	} catch(e){
-		return e;
-	}
-
-	Homey.manager('settings').set( SETTING_PREFIX + soundObj.id, soundObj );
-
-	return getSound( soundObj.id );
-
+	
 }
 
-function updateSound( sound_id, sound ) {
-
-	var soundObj = getSound( sound_id );
-	if( soundObj instanceof Error ) return soundObj;
-
-	if( sound && sound.name ) soundObj.name = sound.name;
-
-	Homey.manager('settings').set( SETTING_PREFIX + soundObj.id, soundObj );
-
-	return getSound( soundObj.id );
-
-}
-
-function deleteSound( sound_id ) {
-
-	var sound = Homey.manager('settings').get( SETTING_PREFIX + sound_id );
-	if( typeof sound == 'undefined' ) return new Error("invalid_sound_id");
-
-	try {
-		fs.unlinkSync( sound.path );
-	} catch(e){
-		return e;
-	}
-
-	Homey.manager('settings').unset( SETTING_PREFIX + sound_id );
-
-	return true;
-}
-
-module.exports.playSound 	= playSound;
-module.exports.getSound 	= getSound;
-module.exports.getSounds 	= getSounds;
-module.exports.addSound 	= addSound;
-module.exports.updateSound 	= updateSound;
-module.exports.deleteSound 	= deleteSound;
-module.exports.init 		= init;
+module.exports = SoundboardApp;
