@@ -19,21 +19,20 @@ class SoundboardApp extends Homey.App {
 		
 		new Homey.FlowCardAction('play')
 			.register()
-			.registerRunListener(async args => {
-				
+			.registerRunListener(async ({ sound }) => {
+				return this.playSound({ id: sound.id });
 			})
 			.getArgument('sound')
 			.registerAutocompleteListener(async query => {
 				return this.getSounds()
+					.filter(sound => {
+						return sound.name.toLowerCase().indexOf( query.toLowerCase() ) > -1;						
+					})
 					.map(sound => {
-						console.log('sound', sound)
 						return {
 							id: sound.id,
-							title: sound.name,
+							name: sound.name,
 						}
-					})
-					.filter(sound => {
-						return sound.name.toLowerCase().indexOf( args.query.toLowerCase() ) > -1;						
 					})
 			});
 		
