@@ -1,38 +1,40 @@
 {
-    "id": "com.athom.soundboard",
-    "sdk": 2,
-    "name": {
-        "en": "Soundboard"
-    },
-    "description": {
-	    "en": "Play your own sounds in Homey"
-    },
-    "version": "2.0.1",
-    "compatibility": ">=1.5.0",
-    "category": [ "music" ],
-    "author": {
-        "name": "Athom B.V.",
-        "email": "info@athom.nl"
-    },
-    "images": {
-	    "large": "./assets/images/large.png",
-	    "small": "./assets/images/small.png"
-    },
-    "flow": {
-	    "actions": [
-		    {
-			    "id": "play",
-			    "title": {
-				    "en": "Play a sound",
-				    "nl": "Speel een geluid af"
-			    },
-			    "args": [
-				    {
-					    "name": "sound",
-					    "type": "autocomplete"
-				    }
-			    ]
-		    }
-	    ]
-    }
+  "id": "com.athom.soundboard",
+  "sdk": 2,
+  "name": {
+    "en": "Soundboard"
+  },
+  "description": {
+    "en": "Play your own sounds in Homey"
+  },
+  "version": "2.0.2",
+  "compatibility": ">=1.5.0",
+  "category": [
+    "music"
+  ],
+  "author": {
+    "name": "Athom B.V.",
+    "email": "info@athom.nl"
+  },
+  "images": {
+    "large": "./assets/images/large.png",
+    "small": "./assets/images/small.png"
+  },
+  "flow": {
+    "actions": [
+      {
+        "id": "play",
+        "title": {
+          "en": "Play a sound",
+          "nl": "Speel een geluid af"
+        },
+        "args": [
+          {
+            "name": "sound",
+            "type": "autocomplete"
+          }
+        ]
+      }
+    ]
+  }
 }

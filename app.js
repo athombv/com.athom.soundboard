@@ -1,7 +1,7 @@
 'use strict';
 
 const { join } = require('path');
-const { readFile, writeFile, unlink } = require('fs');
+const { readFile, writeFile, unlink, rename } = require('fs');
 const { randomBytes } = require('crypto');
 const { promisify } = require('util');
 const Homey = require('homey');
@@ -11,6 +11,7 @@ var SETTING_PREFIX = 'sound_';
 const readFileAsync = promisify(readFile);
 const writeFileAsync = promisify(writeFile);
 const unlinkAsync = promisify(unlink);
+const renameAsync = promisify(rename);
 
 class SoundboardApp extends Homey.App {
 	
@@ -35,6 +36,32 @@ class SoundboardApp extends Homey.App {
 						}
 					})
 			});
+			
+		this._migration1().catch(this.error);
+		
+	}
+	
+	/*
+		Add file extension to paths, to serve the correct Content-Type for e.g. Sonos integration
+	*/
+	async _migration1() {
+		const sounds = this.getSounds();
+		await Promise.all(sounds.map(async ({ id, type, path }) => {
+			
+			let ext;
+			if( type === 'audio/mp3' )
+				ext = '.mp3';
+				
+			if( type === 'audio/wav' )
+				ext = '.wav';
+				
+			if( path.endsWith(ext) ) return;
+			
+			const newPath = path + ext;
+			
+			await renameAsync(path, newPath);
+			await this.updateSound({ id, path: newPath });
+		}));
 		
 	}
 	
@@ -81,7 +108,7 @@ class SoundboardApp extends Homey.App {
 		const path = `./userdata/${id}`;
 		await writeFileAsync(path, buf);
 		
-		Homey.ManagerSettings.set(`${SETTING_PREFIX}${id}`, {
+		await Homey.ManagerSettings.set(`${SETTING_PREFIX}${id}`, {
 			id,
 			type,
 			name,
@@ -90,13 +117,16 @@ class SoundboardApp extends Homey.App {
 		return this.getSound({ id });
 	}
 	
-	async updateSound({ id, name }) {
+	async updateSound({ id, name, path }) {
 		const sound = await this.getSound({ id });
 		
 		if( typeof name === 'string' )
 			sound.name = name;
+			
+		if( typeof path === 'string' )
+			sound.path = path;
 		
-		Homey.ManagerSettings.set(`${SETTING_PREFIX}${id}`, sound);
+		await Homey.ManagerSettings.set(`${SETTING_PREFIX}${id}`, sound);
 		
 		return this.getSound({ id });
 		
@@ -109,7 +139,7 @@ class SoundboardApp extends Homey.App {
 		} catch( err ) {
 			this.error(err);
 		}
-		Homey.ManagerSettings.unset(`${SETTING_PREFIX}${id}`);
+		await Homey.ManagerSettings.unset(`${SETTING_PREFIX}${id}`);
 		
 	}
 	
