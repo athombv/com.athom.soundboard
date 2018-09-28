@@ -47,14 +47,7 @@ class SoundboardApp extends Homey.App {
 	async _migration1() {
 		const sounds = this.getSounds();
 		await Promise.all(sounds.map(async ({ id, type, path }) => {
-			
-			let ext;
-			if( type === 'audio/mp3' )
-				ext = '.mp3';
-				
-			if( type === 'audio/wav' )
-				ext = '.wav';
-				
+			const ext = this.getExtByType(type);				
 			if( path.endsWith(ext) ) return;
 			
 			const newPath = path + ext;
@@ -105,7 +98,8 @@ class SoundboardApp extends Homey.App {
 			throw new Error("invalid_buffer");
 			
 		const id = randomBytes(12).toString('hex');
-		const path = `./userdata/${id}`;
+		const ext = this.getExtByType(type);
+		const path = `./userdata/${id}${ext}`;
 		await writeFileAsync(path, buf);
 		
 		await Homey.ManagerSettings.set(`${SETTING_PREFIX}${id}`, {
@@ -141,6 +135,16 @@ class SoundboardApp extends Homey.App {
 		}
 		await Homey.ManagerSettings.unset(`${SETTING_PREFIX}${id}`);
 		
+	}
+	
+	getExtByType(type) {
+		if( type === 'audio/mp3' )
+			return '.mp3';
+			
+		if( type === 'audio/wav' )
+			return '.wav';
+		
+		throw new Error('unsupported_type');
 	}
 	
 }
