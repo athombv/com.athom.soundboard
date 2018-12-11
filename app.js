@@ -62,7 +62,7 @@ class SoundboardApp extends Homey.App {
 		const { type, path } = await this.getSound({ id });
 		const filepath = join(__dirname, path);
 		
-		if( type === 'audio/mp3' )
+		if( type === 'audio/mp3' || type === 'audio/mpeg' )
 			return Homey.ManagerAudio.playMp3(id, filepath);
 			
 		if( type === 'audio/wav' )
@@ -90,7 +90,7 @@ class SoundboardApp extends Homey.App {
 	}
 	
 	async createSound({ type, name, buffer }) {
-		if( !['audio/wav', 'audio/mp3'].includes(type) )
+		if( !['audio/wav', 'audio/mp3', 'audio/mpeg'].includes(type) )
 			throw new Error('invalid_type');
 			
 		const buf = new Buffer(buffer, 'base64');
