@@ -4,6 +4,7 @@
   "name": {
     "en": "Soundboard"
   },
+  "brandColor": "#AFCA38",
   "description": {
     "en": "Play your own sounds in Homey"
   },
