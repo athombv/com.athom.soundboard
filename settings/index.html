@@ -99,7 +99,7 @@
 		<h2 data-i18n="settings.title_upload">Upload a sound</h2>
 		<input type="file" id="files" name="files[]" multiple />
 
-		<script type="text/javascript">	
+		<script type="text/javascript">	    
 		angular.module('soundboard', [])
 			.controller("soundboardCtrl", [ '$scope', '$rootScope', '$timeout', function($scope, $rootScope, $timeout) {
 				
@@ -167,33 +167,29 @@
 				$scope.onFileSelect = function(evt) {
 					var files = evt.target.files;
 					for (var i = 0, file; file = files[i]; i++) {
-						if( file.type == 'audio/mp3' || file.type == 'audio/wav' || file.type == 'audio/mpeg' ) {
-							if( file.size > 900000 ) {
-								Homey.alert( Homey.__('settings.too_large'), 'error' )
-							} else {
-								var reader = new FileReader();
-									reader.onload = (function(theFile) {
-										return function(e) {
-		
-											var buffer = e.target.result.substr(e.target.result.indexOf(',')+1)
-		
-											Homey.api('POST', '/', {
-												type	: theFile.type,
-												name	: theFile.name,
-												buffer	: buffer
-											}, function( err, result ){
-												if( err) return Homey.alert( err.message || err.toString(), 'error' );
-												$scope.getSounds();
-											})
-		
-										};
-									})(file);
-									reader.readAsDataURL(file);
-							}
-						} else {
-							Homey.alert( Homey.__('settings.invalid_type'), 'error');
+						if( file.size > 900000 ) {
+							Homey.alert( Homey.__('settings.too_large'), 'error' )
+							continue;
 						}
-		
+						
+						var reader = new FileReader();
+						reader.onload = (function(theFile) {
+							return function(e) {
+
+								var buffer = e.target.result.substr(e.target.result.indexOf(',')+1)
+
+								Homey.api('POST', '/', {
+									type	: theFile.type,
+									name	: theFile.name,
+									buffer	: buffer
+								}, function( err, result ){
+									if( err) return Homey.alert( err.message || err.toString(), 'error' );
+									$scope.getSounds();
+								})
+
+							};
+						})(file);
+						reader.readAsDataURL(file);
 					};
 				}
 

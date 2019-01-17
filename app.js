@@ -6,7 +6,13 @@ const { randomBytes } = require('crypto');
 const { promisify } = require('util');
 const Homey = require('homey');
 
-var SETTING_PREFIX = 'sound_';
+const SETTING_PREFIX = 'sound_';
+const TYPES_MAP = {
+  'audio/wav': 'wav',
+  'audio/x-wav': 'wav',
+  'audio/mp3': 'mp3',
+  'audio/mpeg': 'mp3',
+};
 
 const readFileAsync = promisify(readFile);
 const writeFileAsync = promisify(writeFile);
@@ -59,14 +65,13 @@ class SoundboardApp extends Homey.App {
 	}
 	
 	async playSound({ id }) {
-		const { type, path } = await this.getSound({ id });
-		const filepath = join(__dirname, path);
+		const { type, path } = await this.getSound({ id });		
 		
-		if( type === 'audio/mp3' || type === 'audio/mpeg' )
-			return Homey.ManagerAudio.playMp3(id, filepath);
+		if( TYPES_MAP[type] === 'mp3' )
+			return Homey.ManagerAudio.playMp3(id, path);
 			
-		if( type === 'audio/wav' )
-			return Homey.ManagerAudio.playWav(id, filepath);
+		if( TYPES_MAP[type] === 'wav' )
+			return Homey.ManagerAudio.playWav(id, path);
 		
 		throw new Error('unsupported_type');
 	}
@@ -90,7 +95,7 @@ class SoundboardApp extends Homey.App {
 	}
 	
 	async createSound({ type, name, buffer }) {
-		if( !['audio/wav', 'audio/mp3', 'audio/mpeg'].includes(type) )
+		if( !TYPES_MAP[type] )
 			throw new Error('invalid_type');
 			
 		const buf = new Buffer(buffer, 'base64');
@@ -138,13 +143,11 @@ class SoundboardApp extends Homey.App {
 	}
 	
 	getExtByType(type) {
-		if( type === 'audio/mp3' )
-			return '.mp3';
-			
-		if( type === 'audio/wav' )
-			return '.wav';
-		
-		throw new Error('unsupported_type');
+	  const typeSimple = TYPES_MAP[type];
+	  if(!typeSimple)
+  		throw new Error('unsupported_type');
+  		
+    return `.${typeSimple}`;		
 	}
 	
 }
