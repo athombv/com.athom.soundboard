@@ -96,7 +96,7 @@ class SoundboardApp extends Homey.App {
 	
 	async createSound({ type, name, buffer }) {
 		if( !TYPES_MAP[type] )
-			throw new Error('invalid_type');
+			throw new Error(`invalid_type:${type}`);
 			
 		const buf = new Buffer(buffer, 'base64');
 		if( !Buffer.isBuffer(buf) )

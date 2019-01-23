@@ -8,7 +8,7 @@
   "description": {
     "en": "Play your own sounds in Homey"
   },
-  "version": "2.0.4",
+  "version": "2.0.5",
   "compatibility": ">=1.5.0",
   "category": [
     "music"
