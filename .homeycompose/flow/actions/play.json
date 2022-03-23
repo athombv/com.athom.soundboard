@@ -1,0 +1,13 @@
+{
+  "id": "play",
+  "title": {
+    "en": "Play a sound",
+    "nl": "Speel een geluid af"
+  },
+  "args": [
+    {
+      "name": "sound",
+      "type": "autocomplete"
+    }
+  ]
+}

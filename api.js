@@ -1,62 +1,36 @@
 "use strict";
 
-const Homey = require('homey');
+module.exports = {
 
-module.exports = [
-
-	{
-		method		: 'POST',
-		path		: '/:id/play',
-		fn: async ({ params: { id }}) => {
-			return Homey.app.playSound({ id });
-		},
+	async play({ homey, params: { id } }) {
+		return homey.app.playSound({ id });
 	},
 
-	{
-		method: 'GET',
-		path: '/',
-		fn: async ({}) => {
-			return Homey.app.getSounds();
-		},
+	async getSounds({ homey  }) {
+		return homey.app.getSounds();
 	},
 
-	{
-		method: 'GET',
-		path: '/',
-		fn: async ({ params: { id } }) => {
-			return Homey.app.getSound({ id });
-		},
+	async getSound({ homey, param: {id}  }) {
+		return homey.app.getSound({ id });
 	},
 
-	{
-		method: 'POST',
-		path: '/',
-		fn: async ({ body: { type, name, buffer } }) => {
-			return Homey.app.createSound({
-				type,
-				name,
-				buffer,
-			});
-		},
+	async createSound({ homey, body: { type, name, buffer }  }) {
+		return homey.app.createSound({
+			type,
+			name,
+			buffer,
+		});
 	},
 
-	{
-		method		: 'PUT',
-		path		: '/:id',
-		fn: async ({ params: { id }, body: {  name } }) => {
-			return Homey.app.updateSound({
-				id,
-				name,
-			});
-		},
+	async updateSound({ homey, params: { id }, body: { name }  }) {
+		return homey.app.updateSound({
+			id,
+			name,
+		});
 	},
 
-	{
-		method		: 'DELETE',
-		path		: '/:id',
-		fn: async ({ params: { id } }) => {
-			return Homey.app.deleteSound({ id });
-		},
-	}
+	async deleteSound({ homey, params: { id }  }) {
+		return homey.app.deleteSound({ id });
+	},
 
-]
+}

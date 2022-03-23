@@ -1,7 +1,6 @@
 <!doctype html>
 <html>
 	<head>
-
 		<script type="text/javascript" src="/homey.js" data-origin="settings"></script>
 		<script type="text/javascript" src="/manager/webserver/assets/js/angular.js"></script>
 		<script type="text/javascript" src="/manager/webserver/assets/font/fontawesome/fontawesome.css"></script>
@@ -99,10 +98,10 @@
 		<h2 data-i18n="settings.title_upload">Upload a sound</h2>
 		<input type="file" id="files" name="files[]" multiple />
 
-		<script type="text/javascript">	    
+		<script type="text/javascript">
 		angular.module('soundboard', [])
 			.controller("soundboardCtrl", [ '$scope', '$rootScope', '$timeout', function($scope, $rootScope, $timeout) {
-				
+
 				var Homey;
 
 				$scope.sounds = [];
@@ -110,17 +109,17 @@
 				$scope.$on('ready', function($e, Homey_) {
 					Homey = Homey_;
 					$scope.__ = Homey.__;
-					
+
 					if (window.File && window.FileReader && window.FileList && window.Blob) {
 						document.getElementById('files').addEventListener('change', $scope.onFileSelect, false);
 					} else {
 						Homey.alert( Homey.__('settings.file_api_err'), 'error');
 					}
-					
+
 					$scope.getSounds();
-					Homey.ready();	
+					Homey.ready();
 				});
-				
+
 				$scope.getSounds = function() {
 					Homey.api('GET', '/', function( err, result ){
 						if( err ) return Homey.alert( err, 'error' );
@@ -163,7 +162,7 @@
 						})
 					})
 				}
-				
+
 				$scope.onFileSelect = function(evt) {
 					var files = evt.target.files;
 					for (var i = 0, file; file = files[i]; i++) {
@@ -171,7 +170,7 @@
 							Homey.alert( Homey.__('settings.too_large'), 'error' )
 							continue;
 						}
-						
+
 						var reader = new FileReader();
 						reader.onload = (function(theFile) {
 							return function(e) {
@@ -208,7 +207,7 @@
 					});
 				};
 			});
-				
+
 		function onHomeyReady(Homey){
 			var scope = angular.element( document.body ).scope();
 				scope.$emit('ready', Homey);
