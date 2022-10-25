@@ -9,7 +9,7 @@
   "description": {
     "en": "Play your own sounds in Homey"
   },
-  "version": "2.1.0",
+  "version": "3.0.0",
   "compatibility": ">=8.0.0",
   "category": [
     "music"
@@ -59,6 +59,10 @@
         "title": {
           "en": "Play a sound",
           "nl": "Speel een geluid af"
+        },
+        "titleFormatted": {
+          "en": "Play sound [[sound]]",
+          "nl": "Speel geluid [[sound]]"
         },
         "args": [
           {

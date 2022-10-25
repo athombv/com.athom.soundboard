@@ -4,6 +4,10 @@
     "en": "Play a sound",
     "nl": "Speel een geluid af"
   },
+  "titleFormatted": {
+    "en": "Play sound [[sound]]",
+    "nl": "Speel geluid [[sound]]"
+  },
   "args": [
     {
       "name": "sound",
