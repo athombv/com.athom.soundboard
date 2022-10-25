@@ -9,11 +9,13 @@
     "en": "Play your own sounds in Homey"
   },
   "version": "2.1.0",
-  "compatibility": ">=5.0.0",
+  "compatibility": ">=8.0.0",
   "category": [
     "music"
   ],
-  "platforms": [ "local" ],
+  "platforms": [
+    "local"
+  ],
   "author": {
     "name": "Athom B.V.",
     "email": "info@athom.nl"
@@ -24,7 +26,7 @@
     "small": "./assets/images/small.png"
   },
   "api": {
-    "play": {
+    "playSound": {
       "method": "POST",
       "path": "/:id/play"
     },

@@ -10,7 +10,7 @@
     "en": "Play your own sounds in Homey"
   },
   "version": "2.1.0",
-  "compatibility": ">=5.0.0",
+  "compatibility": ">=8.0.0",
   "category": [
     "music"
   ],
@@ -27,7 +27,7 @@
     "small": "./assets/images/small.png"
   },
   "api": {
-    "play": {
+    "playSound": {
       "method": "POST",
       "path": "/:id/play"
     },

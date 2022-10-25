@@ -1,9 +1,7 @@
 'use strict';
 
-const { join } = require('path');
-const { readFile, writeFile, unlink, rename } = require('fs');
-const { randomBytes } = require('crypto');
-const { promisify } = require('util');
+const fs = require('fs');
+const crypto = require('crypto');
 const Homey = require('homey');
 
 const SETTING_PREFIX = 'sound_';
@@ -14,139 +12,123 @@ const TYPES_MAP = {
   'audio/mpeg': 'mp3',
 };
 
-const readFileAsync = promisify(readFile);
-const writeFileAsync = promisify(writeFile);
-const unlinkAsync = promisify(unlink);
-const renameAsync = promisify(rename);
-
 class SoundboardApp extends Homey.App {
 
-	onInit() {
-		this.log('SoundboardApp running...');
+  async onInit() {
+    this.log('SoundboardApp running...');
 
-		this.homey.flow.getActionCard('play')
-			.registerRunListener(async ({ sound }) => {
-				return this.playSound({ id: sound.id });
-			})
-			.registerArgumentAutocompleteListener('sound', async (query) => {
-				return this.getSounds()
-					.filter(sound => {
-						return sound.name.toLowerCase().indexOf( query.toLowerCase() ) > -1;
-					})
-					.map(sound => {
-						return {
-							id: sound.id,
-							name: sound.name,
-						}
-					})
-			});
+    this.homey.flow.getActionCard('play')
+      .registerRunListener(async ({ sound }) => {
+        return this.playSound({ id: sound.id });
+      })
+      .registerArgumentAutocompleteListener('sound', async (query) => {
+        const sounds = await this.getSounds();
+        return sounds
+          .filter((sound) => {
+            return sound.name.toLowerCase().indexOf(query.toLowerCase()) > -1;
+          })
+          .map((sound) => {
+            return {
+              id: sound.id,
+              name: sound.name,
+            };
+          });
+      });
+  }
 
-		this._migration1().catch(this.error);
+  async playSound({ id }) {
+    const sound = await this.getSound({ id });
 
-	}
+    if (typeof this.homey.platformVersion === 'number' && this.homey.platformVersion >= 2) {
+      throw new Error('This Homey Pro cannot play sounds.');
+    }
 
-	/*
-		Add file extension to paths, to serve the correct Content-Type for e.g. Sonos integration
-	*/
-	async _migration1() {
-		const sounds = this.getSounds();
-		await Promise.all(sounds.map(async ({ id, type, path }) => {
-			const ext = this.getExtByType(type);
-			if( path.endsWith(ext) ) return;
+    if (TYPES_MAP[sound.type] === 'mp3') {
+      return this.homey.audio.playMp3(id, sound.path);
+    }
 
-			const newPath = path + ext;
+    if (TYPES_MAP[sound.type] === 'wav') {
+      return this.homey.audio.playWav(id, sound.path);
+    }
 
-			await renameAsync(path, newPath);
-			await this.updateSound({ id, path: newPath });
-		}));
+    throw new Error(`Unspported Type: ${sound.type}`);
+  }
 
-	}
+  async getSounds() {
+    return this.homey.settings.getKeys()
+      .filter((key) => key.startsWith(SETTING_PREFIX))
+      .map((key) => this.homey.settings.get(key));
+  }
 
-	async playSound({ id }) {
-		const { type, path } = await this.getSound({ id });
+  async getSound({ id }) {
+    const sound = this.homey.settings.get(`${SETTING_PREFIX}${id}`);
+    if (!sound) {
+      throw new Error(`Invalid Sound: ${id}`);
+    }
 
-		if( TYPES_MAP[type] === 'mp3' )
-			return this.homey.audio.playMp3(id, path);
+    return sound;
+  }
 
-		if( TYPES_MAP[type] === 'wav' )
-			return this.homey.audio.playWav(id, path);
+  async createSound({ type, name, buffer }) {
+    if (!TYPES_MAP[type]) {
+      throw new Error(`Invalid Type: ${type}`);
+    }
 
-		throw new Error('unsupported_type');
-	}
+    const buf = Buffer.from(buffer, 'base64');
+    if (!Buffer.isBuffer(buf)) {
+      throw new Error('Invalid Buffer');
+    }
 
-	getSounds() {
-		return this.homey.settings.getKeys()
-			.filter(key => {
-				return key.indexOf(SETTING_PREFIX) === 0;
-			})
-			.map(key => {
-				return this.getSound({
-					id: key.substring(SETTING_PREFIX.length),
-				});
-			});
-	}
+    const id = crypto.randomBytes(12).toString('hex');
+    const ext = this.getExtByType(type);
+    const path = `./userdata/${id}${ext}`;
+    await fs.promises.writeFile(path, buf);
 
-	getSound({ id }) {
-		const sound = this.homey.settings.get(`${SETTING_PREFIX}${id}`);
-		if( !sound ) throw new Error('invalid_sound');
-		return sound;
-	}
+    await this.homey.settings.set(`${SETTING_PREFIX}${id}`, {
+      id,
+      type,
+      name,
+      path,
+    });
 
-	async createSound({ type, name, buffer }) {
-		if( !TYPES_MAP[type] )
-			throw new Error(`invalid_type:${type}`);
+    return this.getSound({ id });
+  }
 
-		const buf = Buffer.from(buffer, 'base64');
-		if( !Buffer.isBuffer(buf) )
-			throw new Error("invalid_buffer");
+  async updateSound({ id, name, path }) {
+    const sound = await this.getSound({ id });
 
-		const id = randomBytes(12).toString('hex');
-		const ext = this.getExtByType(type);
-		const path = `./userdata/${id}${ext}`;
-		await writeFileAsync(path, buf);
+    if (typeof name === 'string') {
+      sound.name = name;
+    }
 
-		await this.homey.settings.set(`${SETTING_PREFIX}${id}`, {
-			id,
-			type,
-			name,
-			path,
-		});
-		return this.getSound({ id });
-	}
+    if (typeof path === 'string') {
+      sound.path = path;
+    }
 
-	async updateSound({ id, name, path }) {
-		const sound = await this.getSound({ id });
+    await this.homey.settings.set(`${SETTING_PREFIX}${id}`, sound);
 
-		if( typeof name === 'string' )
-			sound.name = name;
+    return this.getSound({ id });
+  }
 
-		if( typeof path === 'string' )
-			sound.path = path;
+  async deleteSound({ id }) {
+    const sound = await this.getSound({ id });
+    await this.homey.settings.unset(`${SETTING_PREFIX}${id}`);
 
-		await this.homey.settings.set(`${SETTING_PREFIX}${id}`, sound);
+    try {
+      await fs.promises.unlink(sound.path);
+    } catch (err) {
+      this.error(`Error Deleting File: ${err.message}`);
+    }
+  }
 
-		return this.getSound({ id });
-
-	}
-
-	async deleteSound({ id }) {
-		const sound = await this.getSound({ id });
-		try {
-			await unlinkAsync(sound.path);
-		} catch( err ) {
-			this.error(err);
-		}
-		await this.homey.settings.unset(`${SETTING_PREFIX}${id}`);
-
-	}
-
-	getExtByType(type) {
-	  const typeSimple = TYPES_MAP[type];
-	  if(!typeSimple)
-  		throw new Error('unsupported_type');
+  getExtByType(type) {
+    const typeSimple = TYPES_MAP[type];
+    if (!typeSimple) {
+      throw new Error(`Unsupported Type: ${type}`);
+    }
 
     return `.${typeSimple}`;
-	}
+  }
 
 }
 
