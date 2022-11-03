@@ -81,7 +81,7 @@ class SoundboardApp extends Homey.App {
 
     const id = crypto.randomBytes(12).toString('hex');
     const ext = this.getExtByType(type);
-    const path = `./userdata/${id}${ext}`;
+    const path = `/userdata/${id}${ext}`;
     await fs.promises.writeFile(path, buf);
 
     await this.homey.settings.set(`${SETTING_PREFIX}${id}`, {
