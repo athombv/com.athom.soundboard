@@ -7,7 +7,15 @@ module.exports = {
   },
 
   async getSounds({ homey }) {
-    return homey.app.getSounds();
+    const sounds = await homey.app.getSounds();
+    return sounds.map((sound) => ({
+      id: sound.id,
+      type: sound.type,
+      name: sound.name,
+      path: sound.path.startsWith('/')
+        ? sound.path.substring(1)
+        : sound.path,
+    }));
   },
 
   async getSound({ homey, param: { id } }) {
