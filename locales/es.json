@@ -1,0 +1,12 @@
+{
+  "settings": {
+    "title_sounds": "Tus sonidos",
+    "title_upload": "Sube un sonido",
+    "no_sounds": "¡Aún no tienes sonidos!",
+    "delete": "Eliminar",
+    "confirm_delete": "¿Estás seguro de que quieres eliminar este sonido?",
+    "invalid_type": "¡Tipo de archivo no válido! Los tipos compatibles son .mp3 o .wav",
+    "too_large": "Ese archivo es demasiado grande. Tamaño máximo: 900 Kb",
+    "file_api_err": "'Las API de archivos no son totalmente compatibles con este navegador.'"
+  }
+}

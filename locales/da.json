@@ -1,0 +1,12 @@
+{
+  "settings": {
+    "title_sounds": "Dine lyde",
+    "title_upload": "Upload en lyd",
+    "no_sounds": "Du har ingen lyde endnu!",
+    "delete": "Fjern",
+    "confirm_delete": "Er du sikker på, at du vil fjerne denne lyd?",
+    "invalid_type": "Ugyldig filtype! Understøttede typer er .mp3 eller .wav",
+    "too_large": "Den fil er for stor. Maks størrelse: 900 Kb",
+    "file_api_err": "'Fil-APIs er ikke fuldt ud understøttet i denne browser.'"
+  }
+}

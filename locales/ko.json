@@ -1,0 +1,12 @@
+{
+  "settings": {
+    "title_sounds": "당신의 소리",
+    "title_upload": "소리 업로드",
+    "no_sounds": "아직 소리가 없어요!",
+    "delete": "제거",
+    "confirm_delete": "이 소리를 정말 제거하시겠어요?",
+    "invalid_type": "잘못된 파일 형식! 지원되는 형식은 .mp3 또는 .wav입니다",
+    "too_large": "파일이 너무 커요. 최대 크기: 900 Kb",
+    "file_api_err": "'이 브라우저에서 파일 API가 완전히 지원되지 않습니다.'"
+  }
+}

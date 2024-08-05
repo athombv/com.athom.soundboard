@@ -1,0 +1,12 @@
+{
+  "settings": {
+    "title_sounds": "Dina ljud",
+    "title_upload": "Ladda upp ett ljud",
+    "no_sounds": "Du har inga ljud än!",
+    "delete": "Ta bort",
+    "confirm_delete": "Är du säker på att du vill ta bort det här ljudet?",
+    "invalid_type": "Ogiltig filtyp! Stödda typer är .mp3 eller .wav",
+    "too_large": "Filen är för stor. Maxstorlek: 900 Kb",
+    "file_api_err": "'Fil-API:erna stöds inte fullt ut i den här webbläsaren.'"
+  }
+}

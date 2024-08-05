@@ -1,0 +1,12 @@
+{
+  "settings": {
+    "title_sounds": "Dine lyder",
+    "title_upload": "Last opp en lyd",
+    "no_sounds": "Du har ingen lyder ennå!",
+    "delete": "Fjern",
+    "confirm_delete": "Er du sikker på at du vil fjerne denne lyden?",
+    "invalid_type": "Ugyldig filtype! Støttede typer er .mp3 eller .wav",
+    "too_large": "Den filen er for stor. Maks størrelse: 900 Kb",
+    "file_api_err": "'Fil-APIene er ikke fullt ut støttet i denne nettleseren.'"
+  }
+}

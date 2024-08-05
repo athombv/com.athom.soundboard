@@ -1,0 +1,12 @@
+{
+  "settings": {
+    "title_sounds": "Vos sons",
+    "title_upload": "Télécharger un son",
+    "no_sounds": "Vous n'avez pas encore de sons !",
+    "delete": "Supprimer",
+    "confirm_delete": "Êtes-vous sûr de vouloir supprimer ce son ?",
+    "invalid_type": "Type de fichier incorrect ! Les types pris en charge sont .mp3 ou .wav",
+    "too_large": "Ce fichier est trop volumineux. Taille max : 900 Ko",
+    "file_api_err": "Les API de fichiers ne sont pas entièrement prises en charge dans ce navigateur."
+  }
+}
