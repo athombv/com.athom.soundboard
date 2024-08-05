@@ -1,0 +1,12 @@
+{
+  "settings": {
+    "title_sounds": "Jouw geluiden",
+    "title_upload": "Upload een geluid",
+    "no_sounds": "Je hebt nog geen geluiden!",
+    "delete": "Verwijderen",
+    "confirm_delete": "Weet je zeker dat je dit geluid wilt verwijderen?",
+    "invalid_type": "Ongeldig bestandstype! Ondersteunde typen zijn .mp3 of .wav",
+    "too_large": "Dat bestand is te groot. Max grootte: 900 Kb",
+    "file_api_err": "'De bestands-API's worden niet volledig ondersteund in deze browser.'"
+  }
+}

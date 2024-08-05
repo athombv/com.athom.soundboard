@@ -1,0 +1,12 @@
+{
+  "settings": {
+    "title_sounds": "Twoje dźwięki",
+    "title_upload": "Prześlij dźwięk",
+    "no_sounds": "Nie masz jeszcze żadnych dźwięków!",
+    "delete": "Usuń",
+    "confirm_delete": "Czy na pewno chcesz usunąć ten dźwięk?",
+    "invalid_type": "Nieprawidłowy typ pliku! Obsługiwane formaty to .mp3 lub .wav",
+    "too_large": "Ten plik jest za duży. Maksymalny rozmiar: 900 Kb",
+    "file_api_err": "'API plików nie są w pełni obsługiwane w tej przeglądarce.'"
+  }
+}

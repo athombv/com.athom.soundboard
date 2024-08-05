@@ -2,11 +2,31 @@
   "id": "play",
   "title": {
     "en": "Play a sound",
-    "nl": "Speel een geluid af"
+    "nl": "Speel een geluid af",
+    "da": "Afspil en lyd",
+    "de": "Ein Geräusch abspielen",
+    "es": "Reproducir un sonido",
+    "fr": "Jouer un son",
+    "it": "Riprodurre un suono",
+    "no": "Spill av en lyd",
+    "sv": "Spela ett ljud",
+    "pl": "Odtwórz dźwięk",
+    "ru": "Воспроизвести звук",
+    "ko": "소리 재생"
   },
   "titleFormatted": {
     "en": "Play sound [[sound]]",
-    "nl": "Speel geluid [[sound]]"
+    "nl": "Speel geluid [[sound]]",
+    "da": "Afspil lyd [[sound]]",
+    "de": "Spiel das Geräusch [[sound]] ab",
+    "es": "Reproduce sonido [[sound]]",
+    "fr": "Joue le son [[sound]]",
+    "it": "Riproduci suono [[sound]]",
+    "no": "Spill lyd [[sound]]",
+    "sv": "Spela ljud [[sound]]",
+    "pl": "Odtwórz dźwięk [[sound]]",
+    "ru": "Воспроизвести звук [[sound]]",
+    "ko": "소리 재생 [[sound]]"
   },
   "args": [
     {
@@ -14,7 +34,17 @@
       "type": "autocomplete",
       "title": {
         "en": "Sound",
-        "nl": "Geluid"
+        "nl": "Geluid",
+        "da": "Lyd",
+        "de": "Geräusch",
+        "es": "Sonido",
+        "fr": "Son",
+        "it": "Suono",
+        "no": "Lyd",
+        "sv": "Ljud",
+        "pl": "Dźwięk",
+        "ru": "Звук",
+        "ko": "소리"
       }
     }
   ]

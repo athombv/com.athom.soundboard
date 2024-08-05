@@ -3,11 +3,33 @@
   "id": "com.athom.soundboard",
   "sdk": 3,
   "name": {
-    "en": "Soundboard"
+    "en": "Soundboard",
+    "nl": "Geluidsbord",
+    "da": "Lydtavle",
+    "de": "Soundboard",
+    "es": "Tablero de sonido",
+    "fr": "Tableau sonore",
+    "it": "Bacheca sonora",
+    "no": "Lydtavle",
+    "sv": "Ljudbräda",
+    "pl": "Tablica dźwiękowa",
+    "ru": "Звуковая панель",
+    "ko": "사운드 보드"
   },
   "brandColor": "#AFCA38",
   "description": {
-    "en": "Play your own sounds in Homey"
+    "en": "Play your own sounds in Homey",
+    "nl": "Speel je eigen geluiden in Homey",
+    "da": "Afspil dine egne lyde i Homey",
+    "de": "Spiele deine eigenen Sounds in Homey",
+    "es": "Reproduce tus propios sonidos en Homey",
+    "fr": "Jouez vos propres sons dans Homey",
+    "it": "Riproduci i tuoi suoni in Homey",
+    "no": "Spill dine egne lyder i Homey",
+    "sv": "Spela upp dina egna ljud i Homey",
+    "pl": "Odtwarzaj własne dźwięki w Homey",
+    "ru": "Воспроизводите свои собственные звуки в Homey",
+    "ko": "Homey에서 나만의 소리를 재생하세요"
   },
   "version": "3.1.0",
   "compatibility": ">=8.0.0",
@@ -58,11 +80,31 @@
         "id": "play",
         "title": {
           "en": "Play a sound",
-          "nl": "Speel een geluid af"
+          "nl": "Speel een geluid af",
+          "da": "Afspil en lyd",
+          "de": "Ein Geräusch abspielen",
+          "es": "Reproducir un sonido",
+          "fr": "Jouer un son",
+          "it": "Riprodurre un suono",
+          "no": "Spill av en lyd",
+          "sv": "Spela ett ljud",
+          "pl": "Odtwórz dźwięk",
+          "ru": "Воспроизвести звук",
+          "ko": "소리 재생"
         },
         "titleFormatted": {
           "en": "Play sound [[sound]]",
-          "nl": "Speel geluid [[sound]]"
+          "nl": "Speel geluid [[sound]]",
+          "da": "Afspil lyd [[sound]]",
+          "de": "Spiel das Geräusch [[sound]] ab",
+          "es": "Reproduce sonido [[sound]]",
+          "fr": "Joue le son [[sound]]",
+          "it": "Riproduci suono [[sound]]",
+          "no": "Spill lyd [[sound]]",
+          "sv": "Spela ljud [[sound]]",
+          "pl": "Odtwórz dźwięk [[sound]]",
+          "ru": "Воспроизвести звук [[sound]]",
+          "ko": "소리 재생 [[sound]]"
         },
         "args": [
           {
@@ -70,7 +112,17 @@
             "type": "autocomplete",
             "title": {
               "en": "Sound",
-              "nl": "Geluid"
+              "nl": "Geluid",
+              "da": "Lyd",
+              "de": "Geräusch",
+              "es": "Sonido",
+              "fr": "Son",
+              "it": "Suono",
+              "no": "Lyd",
+              "sv": "Ljud",
+              "pl": "Dźwięk",
+              "ru": "Звук",
+              "ko": "소리"
             }
           }
         ]
